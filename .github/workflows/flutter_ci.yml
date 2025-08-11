@@ -1,0 +1,39 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout your repo
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Setup Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.8" # Use your Flutter version
+
+      # 3️⃣ Get dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4️⃣ Run tests
+      - name: Run tests
+        run: flutter test
+
+      # 5️⃣ Build APK
+      - name: Build APK
+        run: flutter build apk --release
+
+      # 6️⃣ Upload APK as artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
