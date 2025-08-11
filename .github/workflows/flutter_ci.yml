@@ -100,12 +100,25 @@ jobs:
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-#
-#      # 1️⃣3️⃣ Upload APK to Firebase App Distribution (optional)
-#      - name: Deploy to Firebase App Distribution
-#        if: github.ref == 'refs/heads/main'  # Only deploy on main branch
-#        run: |
-#          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
-#            --app ${{ secrets.FIREBASE_APP_ID }} \
-#            --token "${{ secrets.FIREBASE_TOKEN }}" \
-#            --groups "testers" || echo "Firebase App Distribution failed, but continuing..."
+
+      # 1️⃣3️⃣ Upload APK to Firebase App Distribution with better error handling
+      - name: Deploy to Firebase App Distribution
+        if: github.ref == 'refs/heads/main'  # Only deploy on main branch
+        run: |
+          echo "🚀 Starting Firebase App Distribution..."
+          echo "Branch: ${{ github.ref }}"
+          echo "App ID: ${{ secrets.FIREBASE_APP_ID }}"
+          
+          if [ -z "${{ secrets.FIREBASE_APP_ID }}" ]; then
+            echo "❌ FIREBASE_APP_ID secret is missing!"
+            echo "Please add it to GitHub Secrets"
+            exit 1
+          fi
+          
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+            --app ${{ secrets.FIREBASE_APP_ID }} \
+            --token "${{ secrets.FIREBASE_TOKEN }}" \
+            --groups "testers" \
+            --release-notes "Automated build from GitHub Actions - $(date)" && \
+          echo "✅ Successfully deployed to Firebase App Distribution!" || \
+          echo "❌ Firebase App Distribution failed!"
