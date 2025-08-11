@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "15498135990",
-    "project_id": "deploy-testing-8fa88",
-    "storage_bucket": "deploy-testing-8fa88.appspot.com"
+    "project_number": "645587036902",
+    "project_id": "deployment-8eb89",
+    "storage_bucket": "deployment-8eb89.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:15498135990:android:5aa46d4f0a893829ac5917",
+        "mobilesdk_app_id": "1:645587036902:android:e83a899c8ca823aa26a927",
         "android_client_info": {
           "package_name": "com.example.testing_flutter"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBnyCPWNbimNpKeAE6qAWNQgZsWNWGkjHc"
+          "current_key": "AIzaSyCoF2YB954VPbLyDrIxJ-F8zDzVXyuE2_s"
         }
       ],
       "services": {
