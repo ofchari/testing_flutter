@@ -49,6 +49,11 @@ jobs:
       - name: Run tests
         run: flutter test || true
 
+      # verify Json before build
+      - name: Debug google-services.json
+        run: cat android/app/google-services.json
+
+
       # 9️⃣ Build release APK
       - name: Build APK
         run: flutter build apk --release
