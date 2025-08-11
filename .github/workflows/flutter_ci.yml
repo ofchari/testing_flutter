@@ -24,43 +24,59 @@ jobs:
       # 3️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.8"
+          flutter-version: "3.24.3"  # Fixed version number
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 5️⃣ Add google-services.json (Firebase config)
+      # 5️⃣ Add google-services.json (Firebase config) - FIXED
       - name: Create google-services.json
         run: |
           mkdir -p android/app
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json
+          cat > android/app/google-services.json << 'EOF'
+          ${{ secrets.GOOGLE_SERVICES_JSON }}
+          EOF
 
+      # 6️⃣ Verify and debug the JSON file
+      - name: Debug google-services.json
+        run: |
+          echo "=== File exists check ==="
+          ls -la android/app/google-services.json
+          echo ""
+          echo "=== File content ==="
+          cat android/app/google-services.json
+          echo ""
+          echo "=== JSON validation ==="
+          python3 -m json.tool android/app/google-services.json > /dev/null && echo "✅ JSON is valid" || echo "❌ JSON is invalid"
+          echo ""
+          echo "=== File encoding check ==="
+          file android/app/google-services.json
 
-      # 6️⃣ Install Firebase CLI
+      # 7️⃣ Install Firebase CLI
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      # 7️⃣ Authenticate Firebase
+      # 8️⃣ Authenticate Firebase
       - name: Firebase login
         run: firebase use --add deployment-8eb89 --token "${{ secrets.FIREBASE_TOKEN }}"
 
-      # 8️⃣ Run tests
+      # 9️⃣ Run tests
       - name: Run tests
         run: flutter test || true
 
-      # verify Json before build
-      - name: Debug google-services.json
-        run: cat android/app/google-services.json
+      # 🔟 Clean before build
+      - name: Clean Flutter
+        run: flutter clean && flutter pub get
 
-
-      # 9️⃣ Build release APK
+      # 1️⃣1️⃣ Build release APK
       - name: Build APK
         run: flutter build apk --release
 
-      # 🔟 Upload APK to artifacts
+      # 1️⃣2️⃣ Upload APK to artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
