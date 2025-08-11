@@ -58,6 +58,48 @@ This project demonstrates deploying a Flutter web app to Firebase Hosting using 
 
 ---
 
+To get your **Firebase Deploy Token** from the command line, run:
+
+```bash
+firebase login:ci
+```
+
+### Steps:
+
+1. Make sure you have the **Firebase CLI** installed:
+
+   ```bash
+   npm install -g firebase-tools
+   ```
+
+2. Log in to your Firebase account:
+
+   ```bash
+   firebase login
+   ```
+
+3. Generate the token:
+
+   ```bash
+   firebase login:ci
+   ```
+
+   * This will open a browser window for you to log in.
+   * Once logged in, it will display a long token string in the terminal.
+
+4. Copy that token and add it to your GitHub repo:
+
+   * Go to **GitHub Repo → Settings → Secrets and variables → Actions → New repository secret**.
+   * Name it:
+
+     ```
+     FIREBASE_DEPLOY_TOKEN
+     ```
+   * Paste the token as the value.
+
+---
+
+
 ## 🔐 Repository Secrets Used
 
 * **`FIREBASE_DEPLOY_TOKEN`** → Used for authentication during deployment.
