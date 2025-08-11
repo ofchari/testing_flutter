@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter CI with Firebase
 
 on:
   push:
@@ -24,21 +24,35 @@ jobs:
       # 3️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.8" # Change to your Flutter version
+          flutter-version: "3.32.8"
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 5️⃣ Run tests
-      - name: Run tests
-        run: flutter test || true  # <-- keep build running even if tests fail (remove '|| true' if you want strict check)
+      # 5️⃣ Add google-services.json (Firebase config)
+      - name: Create google-services.json
+        run: |
+          mkdir -p android/app
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
 
-      # 6️⃣ Build release APK
+      # 6️⃣ Install Firebase CLI
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      # 7️⃣ Authenticate Firebase
+      - name: Firebase login
+        run: firebase use --add 1:15498135990:android:5aa46d4f0a893829ac5917 --token "${{ secrets.FIREBASE_TOKEN }}"
+
+      # 8️⃣ Run tests
+      - name: Run tests
+        run: flutter test || true
+
+      # 9️⃣ Build release APK
       - name: Build APK
         run: flutter build apk --release
 
-      # 7️⃣ Upload APK to artifacts
+      # 🔟 Upload APK to artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
