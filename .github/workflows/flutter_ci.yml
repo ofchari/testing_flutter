@@ -30,87 +30,48 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # 5️⃣ Add google-services.json (Firebase config) - MULTIPLE METHODS
-      - name: Create google-services.json (Method 1 - Direct)
+      # 5️⃣ Check if secrets exist and create google-services.json
+      - name: Check GitHub Secrets and Create JSON
         run: |
+          echo "Checking if secrets are set..."
+          if [ -z "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "❌ GOOGLE_SERVICES_JSON secret is NOT SET or EMPTY"
+            exit 1
+          else
+            echo "✅ GOOGLE_SERVICES_JSON secret exists"
+            echo "Secret length: $(echo '${{ secrets.GOOGLE_SERVICES_JSON }}' | wc -c)"
+          fi
+          
+          # Create the JSON file
           mkdir -p android/app
           echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
 
-      # 6️⃣ Comprehensive debugging
-      - name: Debug google-services.json
+      # 6️⃣ Validate the created JSON
+      - name: Validate google-services.json
         run: |
-          echo "=== File exists check ==="
+          echo "=== File created successfully ==="
           ls -la android/app/google-services.json
           echo ""
           echo "=== File size ==="
           du -h android/app/google-services.json
           echo ""
-          echo "=== File content (first 500 chars) ==="
-          head -c 500 android/app/google-services.json
-          echo ""
-          echo "=== File content (last 500 chars) ==="
-          tail -c 500 android/app/google-services.json
-          echo ""
-          echo "=== Hexdump (first 100 bytes) ==="
-          hexdump -C android/app/google-services.json | head -10
-          echo ""
           echo "=== JSON validation ==="
-          python3 -m json.tool android/app/google-services.json > /dev/null && echo "✅ JSON is valid" || echo "❌ JSON is invalid"
-          echo ""
-          echo "=== File encoding check ==="
-          file android/app/google-services.json
-          echo ""
-          echo "=== Character count ==="
-          wc -c android/app/google-services.json
-
-      # 6️⃣B Alternative method if first fails
-      - name: Try Base64 method (if previous failed)
-        run: |
-          if ! python3 -m json.tool android/app/google-services.json > /dev/null 2>&1; then
-            echo "First method failed, trying Base64..."
-            echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > android/app/google-services.json
-            echo "=== After Base64 decode ==="
-            python3 -m json.tool android/app/google-services.json > /dev/null && echo "✅ JSON is now valid" || echo "❌ JSON still invalid"
-          fi
-
-      # 6️⃣C Last resort - hardcoded (temporary debug)
-      - name: Hardcoded JSON (debug only)
-        run: |
-          if ! python3 -m json.tool android/app/google-services.json > /dev/null 2>&1; then
-            echo "All methods failed, using hardcoded JSON..."
-            cat > android/app/google-services.json << 'HARDCODED'
-            {
-              "project_info": {
-                "project_number": "645587036902",
-                "project_id": "deployment-8eb89",
-                "storage_bucket": "deployment-8eb89.firebasestorage.app"
-              },
-              "client": [
-                {
-                  "client_info": {
-                    "mobilesdk_app_id": "1:645587036902:android:e83a899c8ca823aa26a927",
-                    "android_client_info": {
-                      "package_name": "com.example.testing_flutter"
-                    }
-                  },
-                  "oauth_client": [],
-                  "api_key": [
-                    {
-                      "current_key": "AIzaSyCoF2YB954VPbLyDrIxJ-F8zDzVXyuE2_s"
-                    }
-                  ],
-                  "services": {
-                    "appinvite_service": {
-                      "other_platform_oauth_client": []
-                    }
-                  }
-                }
-              ],
-              "configuration_version": "1"
-            }
-            HARDCODED
-            echo "=== Hardcoded JSON validation ==="
-            python3 -m json.tool android/app/google-services.json > /dev/null && echo "✅ Hardcoded JSON is valid" || echo "❌ Hardcoded JSON failed"
+          if python3 -m json.tool android/app/google-services.json > /dev/null; then
+            echo "✅ JSON is valid"
+          else
+            echo "❌ JSON is invalid, showing content:"
+            cat android/app/google-services.json
+            echo ""
+            echo "Attempting to fix common issues..."
+            # Remove potential BOM and normalize
+            sed -i '1s/^\xEF\xBB\xBF//' android/app/google-services.json
+            # Try validation again
+            if python3 -m json.tool android/app/google-services.json > /dev/null; then
+              echo "✅ JSON fixed and is now valid"
+            else
+              echo "❌ JSON still invalid after cleanup"
+              exit 1
+            fi
           fi
 
       # 7️⃣ Install Firebase CLI
@@ -139,7 +100,7 @@ jobs:
         with:
           name: app-release.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
+#
 #      # 1️⃣3️⃣ Upload APK to Firebase App Distribution (optional)
 #      - name: Deploy to Firebase App Distribution
 #        if: github.ref == 'refs/heads/main'  # Only deploy on main branch
