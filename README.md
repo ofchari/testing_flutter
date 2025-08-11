@@ -97,7 +97,29 @@ firebase login:ci
      ```
    * Paste the token as the value.
 
----
+
+Change App Distribution in Firebase Console
+Open Firebase Console → https://console.firebase.google.com
+
+Select your project.
+
+In the left menu, click Release & Monitor → App Distribution.
+
+Choose your platform (Android or iOS) app.
+
+Click Manage testers and groups.
+
+You can:
+
+Add or remove testers → Enter their email addresses.
+
+Create groups (e.g., “QA team”, “Beta testers”).
+
+Move testers between groups if you want to change who gets builds.
+
+When you upload a new build (AAB/APK/IPA), you can pick which testers or groups get it.
+
+Save and Firebase will send them an email invite.
 
 
 ## 🔐 Repository Secrets Used
