@@ -42,7 +42,7 @@ jobs:
 
       # 7️⃣ Authenticate Firebase
       - name: Firebase login
-        run: firebase use --add 1:15498135990:android:5aa46d4f0a893829ac5917 --token "${{ secrets.FIREBASE_TOKEN }}"
+        run: firebase use --add deploy-testing-8fa88 --token "${{ secrets.FIREBASE_TOKEN }}"
 
       # 8️⃣ Run tests
       - name: Run tests
