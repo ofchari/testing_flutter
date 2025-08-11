@@ -28,7 +28,7 @@ jobs:
 
       # 4️⃣ Install dependencies
       - name: Install dependencies
-        run: flutter pub get --no-cache
+        run: flutter pub get
 
       # 5️⃣ Run tests
       - name: Run tests
