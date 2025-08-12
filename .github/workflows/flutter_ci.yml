@@ -94,6 +94,14 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+
+        # 1️⃣1️⃣ Build Flutter app in Docker
+       - name: Build Flutter app in Docker
+         run: docker build -t flutter-build -f docker/Dockerfile .
+
+       - name: Run Flutter build
+         run: docker run --rm -v ${{ github.workspace }}:/app flutter-build
+
       # 1️⃣2️⃣ Upload APK to artifacts
       - name: Upload APK
         uses: actions/upload-artifact@v4

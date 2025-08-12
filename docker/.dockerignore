@@ -1,0 +1,7 @@
+build/
+.android/
+.ios/
+.git/
+.idea/
+.packages
+.pub-cache
